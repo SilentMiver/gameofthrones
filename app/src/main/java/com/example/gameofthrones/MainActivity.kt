@@ -1,20 +1,62 @@
 package com.example.gameofthrones
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
+import android.view.View
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.gameofthrones.ui.CharacterAdapter
+import com.example.gameofthrones.viewmodel.GoTViewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
+    private val viewModel: GoTViewModel by viewModels()
+    private lateinit var adapter: CharacterAdapter
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var progressBar: View
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+
+        recyclerView = findViewById(R.id.charactersRecyclerView)
+        progressBar = findViewById(R.id.progressBar)
+
+        setupRecyclerView()
+        setupObservers()
+
+
+        viewModel.loadCharacters(6)
+    }
+
+    private fun setupRecyclerView() {
+        adapter = CharacterAdapter()
+        recyclerView.adapter = adapter
+        recyclerView.layoutManager = LinearLayoutManager(this)
+    }
+
+    private fun setupObservers() {
+        lifecycleScope.launch {
+            viewModel.characters.collectLatest { characters ->
+                adapter.updateCharacters(characters)
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.isLoading.collectLatest { isLoading ->
+                progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.error.collectLatest { error ->
+                error?.let {
+                    // Handle error - you might want to show a toast or snackbar here
+                }
+            }
         }
     }
 }
