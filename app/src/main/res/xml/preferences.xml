@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="Display Settings">
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="show_aliases"
+            android:title="Show Aliases"
+            android:summary="Show character aliases in the list" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="show_culture"
+            android:title="Show Culture"
+            android:summary="Show character culture information" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Data Settings">
+        <ListPreference
+            android:defaultValue="50"
+            android:entries="@array/page_size_entries"
+            android:entryValues="@array/page_size_values"
+            android:key="page_size"
+            android:title="Characters per page"
+            android:summary="Number of characters to load per page" />
+    </PreferenceCategory>
+</PreferenceScreen>
